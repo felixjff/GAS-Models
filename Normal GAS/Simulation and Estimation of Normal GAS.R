@@ -1,4 +1,4 @@
-#####Purpose: Fititing a normal GAS with a normal GAS model to determine the bias of MLE estimates
+#####Purpose: Simulation and calibration of a normal GAS with a normal GAS model to determine the bias of MLE estimates
 ###Author: Felix Farias Fueyo
 
 
@@ -74,7 +74,7 @@ param_0 <- c(f1 = 1 , Zm = 2, w = 1, A = 0.1, B = 0.99, Sigma_squared = 3)
 param_ests <- matrix(data = NA, nrow = simulations, ncol = length(param_0))
 
 for(i in 1:simulations){
-  fit <- optim(par = param_0, fn = loglikelihood, , method = "BFGS", path = y[,i], tobs = tobs)
+  fit <- optim(par = param_0, fn = loglikelihood, method = "BFGS", path = y[,i], tobs = tobs)
   param_ests[i,] <- fit$par 
   print(i)
 }
