@@ -106,3 +106,4 @@ param_bias_2 <- colMeans(param_ests, na.rm = TRUE) - true_param
 
 ##The results indicate:
 # 1. Maximum likelihood estimation of systematic logit GAS is sensitive to the initial parameter selection.
+# 1.2. The bias ecountered can probably be significantly reduced by increasing the cros-section and the length of the panel.
