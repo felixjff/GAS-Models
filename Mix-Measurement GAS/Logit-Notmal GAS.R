@@ -86,7 +86,6 @@ loglikelihood <- function(par, path_l, path_n, tobs, cobs){
   p_ <- matrix(data = NA, nrow = tobs, ncol = 1)
   score_l_ <- matrix(data = NA, nrow = tobs, ncol = 1)
   #Normal
-  y_n_ <- matrix(data = NA, nrow = tobs ,  ncol = simulations)
   score_n_ <- matrix(data = NA, nrow = tobs, ncol = 1)
   
   #Initialize GAS component
