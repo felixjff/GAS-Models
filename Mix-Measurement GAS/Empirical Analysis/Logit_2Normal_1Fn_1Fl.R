@@ -24,7 +24,7 @@ loglikelihood <- function(par, path_l, path_n, tobs, cobs){
   Zc <- par[grepl("Zc",names(par))]
   Zm <- cbind(matrix(data = 1, nrow =  ncol(path_n), ncol = 1), matrix(data = 0, nrow =  ncol(path_n), ncol = 1))
   Zm[2,1] <- par[grepl("Zm",names(par))]
-  #w <- par[grepl("w",names(par))]
+  w <- par[grepl("w",names(par))]
   A <- abs(diag(par[grepl("A",names(par))], length(f1), length(f1)))
   B <- diag(par[grepl("B",names(par))], length(f1), length(f1))
   ssq <- abs(par[grepl("Sig",names(par))])
@@ -49,21 +49,21 @@ loglikelihood <- function(par, path_l, path_n, tobs, cobs){
   #compute likelihood and other elements at every t
   for(i in 1:length(tobs)){
     #Dynamic probability for logit component
-    p_[i] <- 1/(1 + exp(-Zc%*%f_[i,]))
+    p_[i] <- 1/(1 + exp(Zc%*%f_[i,]))
     
     #Score
-    score_l_[i,] <- cobs[i]*path_l[i]%*%Zc - cobs[i]*p_[i]%*%Zc
+    score_l_[i,] <- cobs[i]*p_[i]%*%Zc - cobs[i]*path_l[i]%*%Zc 
     score_n_[i,] <- Zm%*%Siginv%*%(path_n[i] - Zm%*%f_[i,])
     
     score_[i,] <-  score_l_[i,] + score_n_[i,]
     
     #Log-likelihood
-    loglike_l <- cobs[i]*path_l[i]%*%Zc%*%f_[i,] - cobs[i]*log(1 + exp(Zc%*%f_[i,]))
+    loglike_l <- -cobs[i]*path_l[i]%*%Zc%*%f_[i,] - cobs[i]*log(1 + exp(-Zc%*%f_[i,]))
     loglike_n <- -0.5*ncol(path_n)*log(2*pi) - 0.5*log(det(Sig)) - 0.5 * t((path_n[i] - Zm%*%f_[i,])) %*% Siginv %*% (path_n[i] - Zm%*%f_[i,])  
     
     loglike[i] <- loglike_n + loglike_l
     
-    f_[i+1,] <-  A%*%score_[i,] + B%*%f_[i,]
+    f_[i+1,] <- w +  A%*%score_[i,] + B%*%f_[i,]
   }
   #compute log-likelihood
   loglike <- sum(loglike)
@@ -71,8 +71,8 @@ loglikelihood <- function(par, path_l, path_n, tobs, cobs){
 }
 
 #Initialization
-parameters <- c(Zm1 = 0.5, Zc1 = 0.001, Zc2 = 0.001, B1 = 0.5, B2 = 0.5, A1 = 0.5, A2 = 0.5, Sig1 = 1, Sig2 = 1, f1m = 0, 
-                f1c = 0) #, w1 = 0, w2 = 0)
+parameters <- c(Zm1 = 0.5, Zc1 = 0.001, Zc2 = 0.001, B1 = 0.5, B2 = 0.5, A1 = 0.5, A2 = 0.5, Sig1 = 0.7, Sig2 = 0.1, f1m = 0, 
+                f1c = 0 , w1 = 0, w2 = 0)
 
 #Estimation
 fit <- optim(par = parameters, fn = loglikelihood, method = "BFGS" , path_l = path_l, 
@@ -80,7 +80,7 @@ fit <- optim(par = parameters, fn = loglikelihood, method = "BFGS" , path_l = pa
 
 #Transform parameters to their restricted counter part
 par <- c(fit$par[1],  fit$par[2], fit$par[3], fit$par[4], fit$par[5], abs(fit$par[6]), abs(fit$par[7]), abs(fit$par[8]), abs(fit$par[9]),
-         fit$par[10], fit$par[11]) #, fit$par[12], fit$par[13])
+         fit$par[10], fit$par[11], fit$par[12], fit$par[13])
 
 
 #Comparison of fitted default rate with observed default rate:
@@ -99,7 +99,7 @@ p_value <- 2*(1 - pnorm(abs(zscore)))
 Ef <- c(fit$par["w1"], fit$par["w2"])%*%solve((1 - diag(c(fit$par["B1"], fit$par["B2"]) , 2, 2)))
 
 plot(score_[,1], type = "l")
-plot(f_[,1], type = "l")
+plot(f_[,2], type = "l")
 
 #Conclusions:
 #1. The calibration results are extremely sensitive to the parameter constraints. 
