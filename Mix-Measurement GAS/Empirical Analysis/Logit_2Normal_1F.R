@@ -48,16 +48,16 @@ loglikelihood <- function(par, path_l, path_n, tobs, cobs){
   #compute likelihood and other elements at every t
   for(i in 1:length(tobs)){
     #Dynamic probability for logit component
-    p_[i] <- 1/(1 + exp(-Zc*f_[i]))
+    p_[i] <- 1/(1 + exp(Zc*f_[i]))
     
     #Score
-    score_l_[i] <- cobs[i]*path_l[i]*Zc - cobs[i]*p_[i]*Zc
+    score_l_[i] <- cobs[i]*p_[i]*Zc - cobs[i]*path_l[i]*Zc 
     score_n_[i] <- Zm%*%Siginv%*%(path_n[i] - Zm*f_[i])
     
     score_[i] <-  score_l_[i] + score_n_[i]
     
     #Log-likelihood
-    loglike_l <- cobs[i]*path_l[i]*Zc*f_[i] - cobs[i]*log(1 + exp(Zc*f_[i]))
+    loglike_l <- -cobs[i]*path_l[i]*Zc*f_[i] - cobs[i]*log(1 + exp(-Zc*f_[i]))
     loglike_n <- -0.5*ncol(path_n)*log(2*pi) - 0.5*log(det(Sig)) - 0.5 * t((path_n[i] - Zm*f_[i])) %*% Siginv %*% (path_n[i] - Zm*f_[i])  
     
     loglike[i] <- loglike_n + loglike_l
