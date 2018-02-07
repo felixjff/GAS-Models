@@ -786,3 +786,28 @@ for(t in 1:length(tobs)){
 MAD_03_14_GAS2 <- sum(abs(def_rate - def_rate_estim))/length(tobs)
 
 
+
+## Test for Statistical Difference among Results.
+#2014-2016 Forecast
+roc.test(auc_03_07_L_1, auc_03_07_GAS_1, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_03_07_L_2, auc_03_07_GAS_2, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_03_07_L_3, auc_03_07_GAS_3, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_03_07_L_4, auc_03_07_GAS_4, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_03_07_L_5, auc_03_07_GAS_5, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_03_07_L_6, auc_03_07_GAS_6, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_03_07_L_7, auc_03_07_GAS_7, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_03_07_L_8, auc_03_07_GAS_8, method=c("bootstrap"), alternative = c("two.sided"))
+
+#2014-2016 Forecast
+roc.test(auc_14_16_L_1, auc_03_14_GAS_1, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_14_16_L_2, auc_03_14_GAS_2, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_14_16_L_3, auc_03_14_GAS_3, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_14_16_L_4, auc_03_14_GAS_4, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_14_16_L_5, auc_03_14_GAS_5, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_14_16_L_6, auc_03_14_GAS_6, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_14_16_L_7, auc_03_14_GAS_7, method=c("bootstrap"), alternative = c("two.sided"))
+roc.test(auc_14_16_L_8, auc_03_14_GAS_8, method=c("bootstrap"), alternative = c("two.sided"))
+
+
+
+

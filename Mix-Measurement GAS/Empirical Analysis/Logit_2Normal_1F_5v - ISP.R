@@ -1,6 +1,7 @@
 #### Purpose: Calibrate the logit-normal GAS model with a pool of loans increasing length, 2 macro variables, one common latent factor and 
 #             5 logit explanatory variables.
 
+library(data.table)
 
 #### 2003 - 2016 ###
 
@@ -63,7 +64,7 @@ loglikelihood <- function(par, path_l, path_n, path_l_cscore, path_l_oltv, path_
   #compute likelihood and other elements at every t
   for(i in 1:length(tobs)){
     #Dynamic probability for logit component
-    sum_cov <- Beta[1]*path_l_cscore[DateQtr == tobs[i]]$CSCORE_B + Beta[2]*path_l_oltv[DateQtr == tobs[i]]$OLTV + 
+    sum_cov <-Beta[1]*path_l_cscore[DateQtr == tobs[i]]$CSCORE_B + Beta[2]*path_l_oltv[DateQtr == tobs[i]]$OLTV + 
       Beta[3]*path_l_dti[DateQtr == tobs[i]]$DTI + Beta[4]*path_l_origamt[DateQtr == tobs[i]]$ORIG_AMT +
       Beta[5]*path_l_lastrt[DateQtr == tobs[i]]$LAST_RT
     
@@ -90,7 +91,7 @@ loglikelihood <- function(par, path_l, path_n, path_l_cscore, path_l_oltv, path_
 }
 
 #Initialization
-parameters <- c(Zm1 = 0.5, Zm2 = 0.5, Zc1 = 0.01, B1 = 0.5, A1 = 0.5, Sig1 = 0.6, Sig2 = 0.6, f1 = 0, Beta = c(1, 1, 1, 1, 1), w1 = 1)
+parameters <- c(Zm1 = 0.01, Zm2 = 0, Zc1 = 0.33, B1 = 0.89, A1 = 0.8, Sig1 = 0.9, Sig2 = 0.6, f1 = 30.14, Beta = c(0.02, 0.02, -0.04, -0.04, 0.17), w1 = 0)
 
 #Estimation
 fit <- optim(par = parameters, fn = loglikelihood, method = "BFGS" , path_l = path_l, 
@@ -143,7 +144,8 @@ zscore <- b / se
 p_value <- 2*(1 - pnorm(abs(zscore)))
 p_value_03_16 <- p_value
 
-
+AIC_03_16 <- 2*length(par) - 2*loglike
+BIC_03_16 <- log(length(tobs))*length(par) - 2*loglike 
 
 #### 2006 - 2016 ###
 
@@ -507,3 +509,37 @@ b <- fit$par
 zscore <- b / se
 p_value <- 2*(1 - pnorm(abs(zscore)))
 p_value_14_16 <- p_value
+
+
+
+
+# Plot 
+par(mfrow = c(2,6))
+
+#Score
+plot(score_03_16, main = "2003-2016", ylab = "Score" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,51,4), labels = seq(2003,2015,1))
+plot(score_06_16, main = "2006-2016", ylab = "Score" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,40,4), labels = seq(2006,2015,1))
+plot(score_08_16, main = "2008-2016", ylab = "Score" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,32,4), labels = seq(2008,2015,1))
+plot(score_10_16, main = "2010-2016", ylab = "Score" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,24,4), labels = seq(2010,2015,1))
+plot(score_12_16, main = "2012-2016", ylab = "Score" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,16,4), labels = seq(2012,2015,1))
+plot(score_14_16, main = "2014-2016", ylab = "Score" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,9,4), labels = seq(2014,2016,1))
+
+#Factor
+plot(f_03_16, main = "2003-2016", ylab = "Factor" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,51,4), labels = seq(2003,2015,1))
+plot(f_06_16, main = "2006-2016", ylab = "Factor" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,40,4), labels = seq(2006,2015,1))
+plot(f_08_16, main = "2008-2016", ylab = "Factor" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,32,4), labels = seq(2008,2015,1))
+plot(f_10_16, main = "2010-2016", ylab = "Factor" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,24,4), labels = seq(2010,2015,1))
+plot(f_12_16, main = "2012-2016", ylab = "Factor" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,16,4), labels = seq(2012,2015,1))
+plot(f_14_16, main = "2014-2016", ylab = "Factor" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,8,4), labels = seq(2014,2015,1))

@@ -129,6 +129,31 @@ zscore <- b / se
 p_value <- 2*(1 - pnorm(abs(zscore)))
 
 
+# Plot: Factor and Score
+par(mfrow = c(2,1))
+#Factor
+plot(f_, main = "Macro Factor", ylab = "Factor" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,51,4), labels = seq(2003,2015,1))
+
+#Score
+plot(score_, main = "Score of Macro Factor", ylab = "Score" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,51,4), labels = seq(2003,2015,1))
+
+
+
+# Plot: Probability of Default
+par(mfrow = c(2,1))
+#Fit
+p_average <- as.data.table(p_average)
+ggplot(p_average, type = "l", main = "Estimated", ylab = "Default Rate", xlab = "Year", xaxt = "n") +
+axis(1, at = seq(1,51,4), labels = seq(2003,2015,1))
+#Actual
+plot(path_l, type = "l",  main = "Actual", ylab = "Default Rate", xlab = "Year", xaxt = "n")
+axis(1, at = seq(1,51,4), labels = seq(2003,2015,1))
+
+ak <- 2*length(par) - 2*loglike
+bay <- log(length(tobs))*length(par) - 2*loglike
+
 # Conclusion:
 #1. The model has failed several times due to misspecification. After several trials to fix the model by changing:
 #   - The amount of fixed parameters: w = 0 and loan covariantes.

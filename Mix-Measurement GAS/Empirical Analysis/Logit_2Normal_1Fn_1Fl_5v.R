@@ -31,9 +31,9 @@ path_l_lastrt <- subset(DM_1C, select = c("LAST_RT","DateQtr"))
 loglikelihood <- function(par, path_l, path_n, path_l_cscore, path_l_oltv, path_l_dti, path_l_origamt, path_l_lastrt, tobs, cobs){
   f1 <- par[grepl("f1",names(par))]
   Zc <- par[grepl("Zc",names(par))]
-  #Zm <- cbind(matrix(data = 1, nrow =  ncol(path_n), ncol = 1), matrix(data = 0, nrow =  ncol(path_n), ncol = 1))
-  #Zm[2,1] <- par[grepl("Zm",names(par))]
-  Zm <- cbind(par[grepl("Zm",names(par))], matrix(data = 0, nrow =  ncol(path_n), ncol = 1))
+  Zm <- cbind(matrix(data = 1, nrow =  ncol(path_n), ncol = 1), matrix(data = 0, nrow =  ncol(path_n), ncol = 1))
+  Zm[2,1] <- par[grepl("Zm",names(par))]
+  #Zm <- cbind(par[grepl("Zm",names(par))], matrix(data = 0, nrow =  ncol(path_n), ncol = 1))
   w <- par[grepl("w",names(par))]
   A <- abs(diag(par[grepl("A",names(par))], length(f1), length(f1)))
   B <- diag(par[grepl("B",names(par))], length(f1), length(f1))
@@ -86,18 +86,18 @@ loglikelihood <- function(par, path_l, path_n, path_l_cscore, path_l_oltv, path_
 }
 
 #Initialization
-parameters <- c(Zm1 = 0.5, Zm2 = 0.5, Zc1 = 0.01, Zc2 = 0.01, B1 = 0.5, B2 = 0.5, A1 = 0.5, A2 = 0.5, Sig1 = 0.5, Sig2 = 0.5, f1m = 0, 
-                f1c = 6, Beta = c( 1, 1, 1, 1, 1), w1 = 1, w2 = 1)
+parameters <- c(Zm1 = 0.5, Zc1 = 0.01, Zc2 = 0.01, B1 = 0.8, B2 = 0.8, A1 = 0.5, A2 = 0.5, Sig1 = 0.5, Sig2 = 0.5, f1m = 2, 
+                f1c = 20, Beta = c( 1, 1, 1, 1, 1), w1 = 2, w2 = 2)
 
 #Estimation
 fit <- optim(par = parameters, fn = loglikelihood, method = "BFGS" , path_l = path_l, 
              path_n = path_n, path_l_cscore = path_l_cscore, path_l_oltv = path_l_oltv, path_l_dti = path_l_dti, 
              path_l_origamt = path_l_origamt, path_l_lastrt = path_l_lastrt, 
-             cobs = cobs, tobs = tobs, control=list(trace = 1, REPORT=10, maxit = 300), hessian = TRUE)
+             cobs = cobs, tobs = tobs, control=list(trace = 1, REPORT=10, maxit = 300), hessian = FALSE)
 
 #Transform parameters to their restricted counter part
 par <- c(fit$par[1],  fit$par[2], fit$par[3], fit$par[4], fit$par[5], abs(fit$par[6]), abs(fit$par[7]), abs(fit$par[8]), abs(fit$par[9]),
-         fit$par[10], fit$par[11], fit$par[12], fit$par[13], fit$par[14], fit$par[15], fit$par[16], fit$par[17], fit$par[18], fit$par[19])
+         fit$par[10], fit$par[11], fit$par[12], fit$par[13], fit$par[14], fit$par[15], fit$par[16], fit$par[17], fit$par[18])
 
 #Comparison of fitted default rate with observed default rate:
 Beta_ <- c(fit$par["Beta1"], fit$par["Beta2"], fit$par["Beta3"], fit$par["Beta4"], fit$par["Beta5"])
@@ -130,6 +130,32 @@ b <- fit$par
 zscore <- b / se
 p_value <- 2*(1 - pnorm(abs(zscore)))
 
+
+# Plot: Factor and Score
+par(mfrow = c(2,2))
+#Factor
+plot(f_[,1], main = "Macro Factor", ylab = "Factor" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,51,4), labels = seq(2003,2015,1))
+plot(f_[,2], main = "Frialty Factor", ylab = "Factor" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,51,4), labels = seq(2003,2015,1))
+#Score
+plot(score_[,1], main = "Score of Macro Factor", ylab = "Score" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,51,4), labels = seq(2003,2015,1))
+plot(score_[,2], main = "Score of Frialty Factor", ylab = "Score" , xlab = "Year", xaxt = "n", type = "l")
+axis(1, at = seq(1,51,4), labels = seq(2003,2015,1))
+
+
+# Plot: Probability of Default
+par(mfrow = c(2,1))
+#Fit
+plot(p_average, type = "l", main = "Estimated", ylab = "Default Rate", xlab = "Year", xaxt = "n")
+axis(1, at = seq(1,51,4), labels = seq(2003,2015,1))
+#Actual
+plot(path_l, type = "l",  main = "Actual", ylab = "Default Rate", xlab = "Year", xaxt = "n")
+axis(1, at = seq(1,51,4), labels = seq(2003,2015,1))
+
+ak <- 2*length(par) - 2*loglike
+bay <- log(length(tobs))*length(par) - 2*loglike
 
 # Conclusion:
 #1. The model has failed several times due to misspecification. After several trials to fix the model by changing:
